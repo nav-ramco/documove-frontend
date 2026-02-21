@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Shield, Clock, FileCheck, Users, Building2, Scale, CheckCircle2 } from 'lucide-react'
+import Logo from '../components/Logo'
 
 export default function LandingPage() {
   return (
@@ -7,8 +8,8 @@ export default function LandingPage() {
       {/* Navbar */}
       <nav className="border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-primary">documove</Link>
+                                <div className="flex justify-between items-center h-16">
+              <Logo size="sm" />
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-sm text-gray-600 hover:text-primary">Features</a>
               <a href="#agents" className="text-sm text-gray-600 hover:text-primary">Estate Agents</a>
