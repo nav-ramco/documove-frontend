@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, ArrowLeftRight, MessageSquare, FileText, Settings, Menu, X, LogOut, Bell } from 'lucide-react'
+import { useAuth } from '../lib/AuthContext'
 
 const navItems = [
   { path: '/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -13,6 +14,13 @@ const navItems = [
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, signOut } = useAuth()
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/login')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -33,7 +41,7 @@ export default function DashboardLayout() {
         </div>
         <nav className="mt-6 px-3 space-y-1">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path || 
+            const isActive = location.pathname === item.path ||
               (item.path !== '/dashboard' && location.pathname.startsWith(item.path))
             return (
               <Link key={item.path} to={item.path}
@@ -48,24 +56,34 @@ export default function DashboardLayout() {
           })}
         </nav>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
-          <Link to="/login" className="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:text-white text-sm">
+          <div className="flex items-center gap-3 px-3 py-2 mb-2">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-medium">
+              {user?.user_metadata?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{user?.user_metadata?.full_name || 'User'}</p>
+              <p className="text-xs text-white/50 truncate">{user?.email}</p>
+            </div>
+          </div>
+          <button onClick={handleSignOut}
+            className="flex items-center gap-3 px-3 py-2.5 w-full text-white/70 hover:text-white hover:bg-white/10 rounded-lg text-sm transition-colors">
             <LogOut className="w-5 h-5" /> Sign Out
-          </Link>
+          </button>
         </div>
       </aside>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8">
+        <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-8">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
-            <Menu className="w-6 h-6 text-gray-600" />
+            <Menu className="w-6 h-6" />
           </button>
-          <div className="flex items-center gap-4 ml-auto">
-            <button className="relative p-2 text-gray-500 hover:text-gray-700">
+          <div className="flex-1" />
+          <div className="flex items-center gap-4">
+            <button className="relative p-2 text-gray-400 hover:text-gray-600">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-medium">JD</div>
           </div>
         </header>
         <main className="flex-1 p-4 lg:p-8 overflow-auto">
