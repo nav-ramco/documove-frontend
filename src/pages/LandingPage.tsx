@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Shield, Clock, FileCheck, Users, Building2, Scale, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, Users, Building2, Scale, CheckCircle2 } from 'lucide-react'
 import Logo from '../components/Logo'
 
 export default function LandingPage() {
