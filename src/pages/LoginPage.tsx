@@ -31,7 +31,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex">
       <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-12">
         <div className="max-w-md text-white">
-          <Logo variant="light" size="lg" />
+          <Logo variant="dark" size="lg" />
           <p className="mt-4 text-lg text-white/80">The digital platform for property conveyancing. Track, communicate, and complete transactions faster.</p>
           <Link to="/" className="inline-flex items-center gap-2 mt-8 text-white/70 hover:text-white transition-colors text-sm">
             <ArrowLeft className="w-4 h-4" />
@@ -42,7 +42,7 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-6">
-            <Logo size="md" />
+            <Logo variant="light" size="md" />
           </div>
           <h2 className="mt-6 text-2xl font-bold text-gray-900">Welcome back</h2>
           <p className="mt-2 text-sm text-gray-600">Sign in to your account to continue</p>
@@ -55,31 +55,31 @@ export default function LoginPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
                 placeholder="you@example.com" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
                 placeholder="Enter your password" required />
             </div>
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-gray-600">
                 <input type="checkbox" className="rounded border-gray-300" /> Remember me
               </label>
-              <Link to="/forgot-password" className="text-sm text-primary hover:underline">Forgot password?</Link>
+              <Link to="/forgot-password" className="text-sm text-accent hover:underline">Forgot password?</Link>
             </div>
             <button type="submit" disabled={loading}
-              className="w-full bg-primary text-white py-2.5 rounded-lg font-medium hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              className="w-full bg-accent text-white py-2.5 rounded-lg font-medium hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-gray-600">
-            Don't have an account? <Link to="/register" className="text-primary font-medium hover:underline">Create one</Link>
+            Don't have an account? <Link to="/register" className="text-accent font-medium hover:underline">Create one</Link>
           </p>
           <div className="mt-4 text-center lg:hidden">
-            <Link to="/" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary">
+            <Link to="/" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-accent">
               <ArrowLeft className="w-4 h-4" />
               Back to Home
             </Link>
