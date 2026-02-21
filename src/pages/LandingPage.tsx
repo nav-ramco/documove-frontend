@@ -96,12 +96,60 @@ export default function LandingPage() {
                 Start managing transactions <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="bg-gray-200 rounded-2xl p-8 aspect-[4/3] flex items-center justify-center">
-              <div className="text-center text-gray-400">
-                <Building2 className="w-16 h-16 mx-auto mb-4" />
-                <p className="text-sm">Agent Dashboard Preview</p>
+                      <div className="bg-white rounded-2xl p-6 aspect-[4/3] shadow-lg overflow-hidden">
+            <div className="bg-primary rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-white font-semibold text-sm">Agent Dashboard</span>
+                <span className="text-accent text-xs font-medium">12 Active</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-white/10 rounded p-2 text-center">
+                  <p className="text-white text-lg font-bold">12</p>
+                  <p className="text-gray-300 text-xs">Active</p>
+                </div>
+                <div className="bg-white/10 rounded p-2 text-center">
+                  <p className="text-white text-lg font-bold">5</p>
+                  <p className="text-gray-300 text-xs">Pending</p>
+                </div>
+                <div className="bg-white/10 rounded p-2 text-center">
+                  <p className="text-accent text-lg font-bold">89</p>
+                  <p className="text-gray-300 text-xs">Completed</p>
+                </div>
               </div>
             </div>
+            <div className="space-y-3">
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-900 text-xs font-medium">14 Maple Drive</span>
+                  <span className="text-accent text-xs font-semibold">75%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div className="bg-accent h-1.5 rounded-full" style={{width: '75%'}}></div>
+                </div>
+                <p className="text-gray-400 text-xs mt-1">Searches ordered</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-900 text-xs font-medium">7 Oak Avenue</span>
+                  <span className="text-accent text-xs font-semibold">45%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div className="bg-accent h-1.5 rounded-full" style={{width: '45%'}}></div>
+                </div>
+                <p className="text-gray-400 text-xs mt-1">Awaiting documents</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-900 text-xs font-medium">22 Park Lane</span>
+                  <span className="text-accent text-xs font-semibold">90%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div className="bg-accent h-1.5 rounded-full" style={{width: '90%'}}></div>
+                </div>
+                <p className="text-gray-400 text-xs mt-1">Ready to exchange</p>
+              </div>
+            </div>
+          </div>
           </div>
         </div>
       </section>
@@ -110,12 +158,51 @@ export default function LandingPage() {
       <section id="conveyancers" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="bg-gray-200 rounded-2xl p-8 aspect-[4/3] flex items-center justify-center order-2 lg:order-1">
-              <div className="text-center text-gray-400">
-                <Scale className="w-16 h-16 mx-auto mb-4" />
-                <p className="text-sm">Conveyancer Dashboard Preview</p>
+                      <div className="bg-white rounded-2xl p-6 aspect-[4/3] shadow-lg overflow-hidden order-2 lg:order-1">
+            <div className="bg-primary rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-white font-semibold text-sm">Conveyancer Dashboard</span>
+                <span className="text-accent text-xs font-medium">8 Cases</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-white/10 rounded p-2 text-center">
+                  <p className="text-white text-lg font-bold">8</p>
+                  <p className="text-gray-300 text-xs">Active</p>
+                </div>
+                <div className="bg-white/10 rounded p-2 text-center">
+                  <p className="text-white text-lg font-bold">3</p>
+                  <p className="text-gray-300 text-xs">Searches</p>
+                </div>
+                <div className="bg-white/10 rounded p-2 text-center">
+                  <p className="text-accent text-lg font-bold">62</p>
+                  <p className="text-gray-300 text-xs">Completed</p>
+                </div>
               </div>
             </div>
+            <div className="space-y-3">
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-900 text-xs font-medium">14 Maple Drive</span>
+                  <span className="bg-accent/10 text-accent text-xs px-2 py-0.5 rounded-full">Searches</span>
+                </div>
+                <p className="text-gray-400 text-xs">Buyer: J. Smith · Agent: Park Lane Homes</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-900 text-xs font-medium">7 Oak Avenue</span>
+                  <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">ID Check</span>
+                </div>
+                <p className="text-gray-400 text-xs">Seller: A. Brown · Agent: City Sales</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-900 text-xs font-medium">22 Park Lane</span>
+                  <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">Exchange</span>
+                </div>
+                <p className="text-gray-400 text-xs">Buyer: M. Wilson · Agent: Premier Estates</p>
+              </div>
+            </div>
+          </div>
             <div className="order-1 lg:order-2">
               <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-3 py-1 rounded-full text-sm font-medium">
                 <Scale className="w-4 h-4" /> For Conveyancers
