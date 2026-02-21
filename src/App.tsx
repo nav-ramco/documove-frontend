@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import RegisterPage from './pages/RegisterPage.tsx'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import DashboardLayout from './components/DashboardLayout.tsx'
 import Dashboard from './pages/dashboard/Dashboard.tsx'
 import Transactions from './pages/dashboard/Transactions.tsx'
@@ -21,7 +22,8 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <DashboardLayout />
