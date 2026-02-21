@@ -8,9 +8,9 @@ interface LogoProps {
 }
 
 export default function Logo({ variant = 'dark', size = 'md', linkTo = '/' }: LogoProps) {
-  const textColor = variant === 'dark' ? 'text-gray-900' : 'text-white'
-  const accentColor = variant === 'dark' ? 'text-primary' : 'text-white/80'
-  const iconColor = variant === 'dark' ? 'text-primary' : 'text-white'
+  const textColor = variant === 'dark' ? 'text-white' : 'text-gray-900'
+  const accentColor = 'text-accent'
+  const iconColor = 'text-accent'
 
   const sizeClasses = {
     sm: { text: 'text-xl', icon: 'w-4 h-4', gap: 'gap-1' },
