@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 
 const roles = [
@@ -17,7 +17,6 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const navigate = useNavigate()
   const { signUp } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
