@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, Plus, ChevronRight, Home, Clock, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Search, Plus, ChevronRight, Home, Clock, CheckCircle2, AlertTriangle } from 'lucide-react'
 
 const transactions = [
   { id: '1', address: '14 Maple Drive, London SW1A 1AA', buyer: 'Sarah Johnson', seller: 'David Wilson', status: 'Searches Ordered', progress: 35, type: 'Purchase', price: '£425,000', date: '2024-01-15' },
