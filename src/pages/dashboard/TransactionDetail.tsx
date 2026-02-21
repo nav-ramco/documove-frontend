@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Home, User, FileText, Clock, CheckCircle2, MessageSquare, Download } from 'lucide-react'
+import { ArrowLeft, Home, FileText, Clock, CheckCircle2, MessageSquare, Download } from 'lucide-react'
 
 const transactionData: Record<string, any> = {
   '1': { id: '1', address: '14 Maple Drive, London SW1A 1AA', buyer: 'Sarah Johnson', seller: 'David Wilson', solicitorBuyer: 'Adams & Partners LLP', solicitorSeller: 'Baker Legal Services', status: 'Searches Ordered', progress: 35, type: 'Purchase', price: '£425,000', date: '2024-01-15', estateAgent: 'Foxtons', mortgageLender: 'Nationwide' },
