@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, FileText, Clock, CheckCircle2, MessageSquare, Mail, Phone, User, Lock, Shield } from 'lucide-react'
+import { ArrowLeft, FileText, Clock, CheckCircle2, MessageSquare, Mail, Phone, User, Lock, Shield, Building2, Star, Search, Loader2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/AuthContext'
 
@@ -28,6 +28,34 @@ interface Property {
   buyer_phone?: string
   buyer_invited_at?: string
   offer_accepted_at?: string
+  seller_solicitor_id?: string
+}
+
+interface ConveyancerPanel {
+  id: string
+  firm_name: string
+  contact_name: string
+  email: string
+  phone: string
+  address: string
+  town: string
+  postcode: string
+  rating: number
+  review_count: number
+  fixed_fee: number | null
+  active: boolean
+}
+
+interface ConveyancerInvite {
+  id: string
+  property_id: string
+  conveyancer_panel_id: string | null
+  conveyancer_name: string
+  conveyancer_email: string
+  conveyancer_firm: string | null
+  conveyancer_phone: string | null
+  status: string
+  invited_at: string
 }
 
 const defaultMilestones = [
@@ -52,10 +80,17 @@ export default function TransactionDetail() {
   const [inviteSuccess, setInviteSuccess] = useState(false)
   const [advancing, setAdvancing] = useState(false)
   const [userRole, setUserRole] = useState<string>('agent')
+  const [conveyancerPanel, setConveyancerPanel] = useState<ConveyancerPanel[]>([])
+  const [conveyancerInvite, setConveyancerInvite] = useState<ConveyancerInvite | null>(null)
+  const [showConveyancerPicker, setShowConveyancerPicker] = useState(false)
+  const [conveyancerSearch, setConveyancerSearch] = useState('')
+  const [invitingConveyancer, setInvitingConveyancer] = useState(false)
 
   useEffect(() => {
     fetchProperty()
+    fetchConveyancerPanel()
     if (user) fetchUserRole()
+    if (id) fetchConveyancerInvite()
   }, [id, user])
 
   const fetchUserRole = async () => {
@@ -80,6 +115,51 @@ export default function TransactionDetail() {
       console.error('Error fetching property:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchConveyancerPanel = async () => {
+    const { data } = await supabase
+      .from('conveyancer_panel')
+      .select('*')
+      .eq('active', true)
+      .order('rating', { ascending: false })
+    if (data) setConveyancerPanel(data)
+  }
+
+  const fetchConveyancerInvite = async () => {
+    const { data } = await supabase
+      .from('conveyancer_invites')
+      .select('*')
+      .eq('property_id', id)
+      .order('invited_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (data) setConveyancerInvite(data)
+  }
+
+  const handleInviteConveyancer = async (c: ConveyancerPanel) => {
+    if (!property || !user) return
+    setInvitingConveyancer(true)
+    try {
+      const { error } = await supabase.from('conveyancer_invites').insert({
+        property_id: property.id,
+        conveyancer_panel_id: c.id,
+        conveyancer_name: c.contact_name,
+        conveyancer_email: c.email,
+        conveyancer_firm: c.firm_name,
+        conveyancer_phone: c.phone,
+        status: 'pending',
+        invited_by: user.id,
+      })
+      if (!error) {
+        await fetchConveyancerInvite()
+        setShowConveyancerPicker(false)
+      }
+    } catch (err) {
+      console.error('Error inviting conveyancer:', err)
+    } finally {
+      setInvitingConveyancer(false)
     }
   }
 
@@ -143,12 +223,18 @@ export default function TransactionDetail() {
     }
   }
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading property details...</div>
+  const filteredConveyancers = conveyancerPanel.filter(c =>
+    (c.contact_name || '').toLowerCase().includes(conveyancerSearch.toLowerCase()) ||
+    (c.firm_name || '').toLowerCase().includes(conveyancerSearch.toLowerCase()) ||
+    (c.town || '').toLowerCase().includes(conveyancerSearch.toLowerCase())
+  )
+
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="text-gray-500">Loading property details...</div></div>
 
   if (!property) return (
-    <div className="p-8 text-center">
-      <p className="text-gray-400 mb-4">Property not found</p>
-      <Link to="/dashboard/transactions" className="text-[#D4AF37] hover:underline">Back to Properties</Link>
+    <div className="flex flex-col items-center justify-center h-64 space-y-4">
+      <p className="text-gray-500">Property not found</p>
+      <Link to="/dashboard/transactions" className="text-accent hover:underline">Back to Properties</Link>
     </div>
   )
 
@@ -157,20 +243,20 @@ export default function TransactionDetail() {
 
   return (
     <div className="space-y-6">
-      <Link to="/dashboard/transactions" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+      <Link to="/dashboard/transactions" className="flex items-center gap-2 text-gray-400 hover:text-white text-sm">
         <ArrowLeft className="w-4 h-4" /> Back to Properties
       </Link>
 
       {/* Header */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <div className="flex items-start justify-between mb-4">
+      <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
+        <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">{property.address_line1 || property.address}</h1>
-            <p className="text-gray-400 mt-1">{property.city} {property.postcode} {property.case_number ? `· ${property.case_number}` : ''}</p>
+            <p className="text-gray-400 mt-1">{property.city} {property.postcode} {property.case_number ? `\u00b7 ${property.case_number}` : ''}</p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${progress >= 80 ? 'bg-green-500/20 text-green-400' : progress >= 40 ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'}`}>{property.current_stage || property.status || 'Active'}</span>
+          <span className={`text-xs font-medium px-3 py-1 rounded-full ${progress >= 80 ? 'bg-green-500/20 text-green-400' : progress >= 40 ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'}`}>{property.current_stage || property.status || 'Active'}</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="mt-4 flex items-center gap-3">
           <span className="text-sm text-gray-400">Progress</span>
           <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
             <div className={`h-full rounded-full transition-all ${progress >= 80 ? 'bg-green-500' : progress >= 40 ? 'bg-blue-500' : 'bg-amber-500'}`} style={{ width: `${progress}%` }} />
@@ -182,37 +268,23 @@ export default function TransactionDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - 2/3 width */}
         <div className="lg:col-span-2 space-y-6">
+
           {/* Property Details */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
             <h2 className="text-lg font-semibold text-white mb-4">Property Details</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-gray-400 mb-1">Address</p>
-                <p className="text-sm text-white">{property.address_line1}{property.address_line2 ? `, ${property.address_line2}` : ''}, {property.city} {property.postcode}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 mb-1">Asking Price</p>
-                <p className="text-sm text-white font-medium">{`\u00a3`}{Number(property.price || 0).toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 mb-1">Property Type</p>
-                <p className="text-sm text-white">{property.property_type || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 mb-1">Bedrooms</p>
-                <p className="text-sm text-white">{property.bedrooms || 'N/A'}</p>
-              </div>
+              <div><p className="text-xs text-gray-500">Address</p><p className="text-sm text-white">{property.address_line1}{property.address_line2 ? `, ${property.address_line2}` : ''}, {property.city} {property.postcode}</p></div>
+              <div><p className="text-xs text-gray-500">Asking Price</p><p className="text-sm text-white font-semibold">{`\u00a3`}{Number(property.price || 0).toLocaleString()}</p></div>
+              <div><p className="text-xs text-gray-500">Property Type</p><p className="text-sm text-white">{property.property_type || 'N/A'}</p></div>
+              <div><p className="text-xs text-gray-500">Bedrooms</p><p className="text-sm text-white">{property.bedrooms || 'N/A'}</p></div>
             </div>
           </div>
 
           {/* Milestones with Role Permissions */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white">Transaction Milestones</h2>
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#D4AF37]" />
-                <span className="text-xs text-gray-400">Your role: <span className="text-[#D4AF37] font-medium capitalize">{userRole}</span></span>
-              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-400"><Shield className="w-3.5 h-3.5" /> Your role: <span className="font-medium text-white">{userRole}</span></div>
             </div>
             <div className="space-y-4">
               {defaultMilestones.map((m, i) => {
@@ -220,43 +292,31 @@ export default function TransactionDetail() {
                 const isCurrent = i === completedSteps
                 const allowed = canComplete(m)
                 return (
-                  <div key={i} className={`flex gap-4 p-4 rounded-lg border transition-all ${
-                    isCompleted ? 'bg-green-500/5 border-green-500/20' :
-                    isCurrent ? 'bg-gray-700/50 border-[#D4AF37]/30' :
-                    'bg-gray-900/50 border-gray-700/50 opacity-60'
-                  }`}>
-                    <div className="flex-shrink-0 mt-1">
+                  <div key={i} className={`p-4 rounded-xl border transition-all ${isCompleted ? 'bg-green-500/5 border-green-500/20' : isCurrent ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-800/30 border-gray-700/30 opacity-50'}`}>
+                    <div className="flex items-start gap-3">
                       {isCompleted ? (
-                        <CheckCircle2 className="w-6 h-6 text-green-500" />
+                        <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
                       ) : (
-                        <Clock className="w-6 h-6 text-gray-500" />
+                        <Clock className={`w-5 h-5 mt-0.5 flex-shrink-0 ${isCurrent ? 'text-amber-400' : 'text-gray-600'}`} />
                       )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-white">{m.name}</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getRoleBadgeStyle(m.owner)}`}>{getRoleLabel(m.owner)}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-medium text-white">{m.name}</span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getRoleBadgeStyle(m.owner)}`}>{getRoleLabel(m.owner)}</span>
+                          {isCurrent && !allowed && <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1"><Lock className="w-3 h-3" /> Not your action</span>}
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">{m.description}</p>
+                        {isCurrent && allowed && (
+                          <button onClick={() => handleAdvanceMilestone(i)} disabled={advancing} className={`mt-3 text-xs px-4 py-1.5 rounded-lg font-medium transition-colors ${getActionBtnStyle(m.owner)}`}>
+                            {advancing ? 'Processing...' : m.action}
+                          </button>
+                        )}
                         {isCurrent && !allowed && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1">
-                            <Lock className="w-3 h-3" /> Not your action
-                          </span>
+                          <p className="text-xs text-amber-400 mt-2 flex items-center gap-1">
+                            <Lock className="w-3 h-3" /> Waiting for {getRoleLabel(m.owner).toLowerCase()} to complete this step
+                          </p>
                         )}
                       </div>
-                      <p className="text-xs text-gray-400 mt-1">{m.description}</p>
-                      {isCurrent && allowed && (
-                        <button
-                          onClick={() => handleAdvanceMilestone(i)}
-                          disabled={advancing}
-                          className={`mt-3 text-xs px-4 py-1.5 rounded-lg font-medium transition-colors ${getActionBtnStyle(m.owner)}`}
-                        >
-                          {advancing ? 'Processing...' : m.action}
-                        </button>
-                      )}
-                      {isCurrent && !allowed && (
-                        <p className="mt-2 text-xs text-red-400/70 italic flex items-center gap-1">
-                          <Lock className="w-3 h-3" /> Waiting for {getRoleLabel(m.owner).toLowerCase()} to complete this step
-                        </p>
-                      )}
                     </div>
                   </div>
                 )
@@ -267,71 +327,156 @@ export default function TransactionDetail() {
 
         {/* Right Column */}
         <div className="space-y-6">
+
           {/* Seller */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-white mb-4">Seller</h2>
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
+            <h3 className="text-sm font-semibold text-white mb-3">Seller</h3>
             {property.seller_name ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2"><User className="w-4 h-4 text-gray-400" /><span className="text-sm text-white">{property.seller_name}</span></div>
-                {property.seller_email && <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-400" /><span className="text-sm text-gray-300">{property.seller_email}</span></div>}
-                {property.seller_phone && <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-gray-400" /><span className="text-sm text-gray-300">{property.seller_phone}</span></div>}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-gray-300"><User className="w-4 h-4 text-gray-500" /> {property.seller_name}</div>
+                {property.seller_email && <div className="flex items-center gap-2 text-sm text-gray-300"><Mail className="w-4 h-4 text-gray-500" /> {property.seller_email}</div>}
+                {property.seller_phone && <div className="flex items-center gap-2 text-sm text-gray-300"><Phone className="w-4 h-4 text-gray-500" /> {property.seller_phone}</div>}
                 {!inviteSuccess ? (
-                  <button onClick={handleInviteSeller} disabled={inviteLoading} className="w-full mt-2 px-4 py-2 bg-[#D4AF37] text-black rounded-lg text-sm font-medium hover:bg-[#C4A030] transition-colors disabled:opacity-50">
+                  <button onClick={handleInviteSeller} disabled={inviteLoading} className="w-full mt-3 bg-accent text-white py-2 rounded-lg text-sm font-medium hover:bg-accent-dark transition-colors">
                     {inviteLoading ? 'Sending Invite...' : 'Send Seller Invite'}
                   </button>
                 ) : (
-                  <p className="text-sm text-green-400 mt-2">Invite sent successfully</p>
+                  <p className="text-xs text-green-400 mt-2 text-center">Invite sent successfully</p>
                 )}
               </div>
             ) : (
-              <p className="text-sm text-gray-400">No seller details added yet.</p>
+              <p className="text-sm text-gray-500">No seller details added yet.</p>
+            )}
+          </div>
+
+          {/* Conveyancer - NEW Sprint 3 */}
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
+            <h3 className="text-sm font-semibold text-white mb-3">Conveyancer</h3>
+            {conveyancerInvite ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-gray-300"><User className="w-4 h-4 text-gray-500" /> {conveyancerInvite.conveyancer_name}</div>
+                {conveyancerInvite.conveyancer_firm && <div className="flex items-center gap-2 text-sm text-gray-300"><Building2 className="w-4 h-4 text-gray-500" /> {conveyancerInvite.conveyancer_firm}</div>}
+                <div className="flex items-center gap-2 text-sm text-gray-300"><Mail className="w-4 h-4 text-gray-500" /> {conveyancerInvite.conveyancer_email}</div>
+                {conveyancerInvite.conveyancer_phone && <div className="flex items-center gap-2 text-sm text-gray-300"><Phone className="w-4 h-4 text-gray-500" /> {conveyancerInvite.conveyancer_phone}</div>}
+                <div className="mt-2">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                    conveyancerInvite.status === 'accepted' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                    conveyancerInvite.status === 'declined' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                    'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                  }`}>{conveyancerInvite.status === 'accepted' ? 'Accepted' : conveyancerInvite.status === 'declined' ? 'Declined' : 'Invite Pending'}</span>
+                </div>
+                <button onClick={() => { setConveyancerInvite(null); setShowConveyancerPicker(true) }} className="w-full mt-2 border border-gray-600 text-gray-300 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors">
+                  Change Conveyancer
+                </button>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm text-gray-500 mb-3">No conveyancer assigned yet.</p>
+                <button onClick={() => setShowConveyancerPicker(true)} className="w-full bg-orange-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors flex items-center justify-center gap-2">
+                  <Building2 className="w-4 h-4" /> Choose Conveyancer
+                </button>
+              </div>
             )}
           </div>
 
           {/* Buyer */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-white mb-4">Buyer</h2>
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
+            <h3 className="text-sm font-semibold text-white mb-3">Buyer</h3>
             {property.buyer_name ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2"><User className="w-4 h-4 text-gray-400" /><span className="text-sm text-white">{property.buyer_name}</span></div>
-                {property.buyer_email && <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-400" /><span className="text-sm text-gray-300">{property.buyer_email}</span></div>}
-                {property.buyer_phone && <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-gray-400" /><span className="text-sm text-gray-300">{property.buyer_phone}</span></div>}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-gray-300"><User className="w-4 h-4 text-gray-500" /> {property.buyer_name}</div>
+                {property.buyer_email && <div className="flex items-center gap-2 text-sm text-gray-300"><Mail className="w-4 h-4 text-gray-500" /> {property.buyer_email}</div>}
+                {property.buyer_phone && <div className="flex items-center gap-2 text-sm text-gray-300"><Phone className="w-4 h-4 text-gray-500" /> {property.buyer_phone}</div>}
                 {property.buyer_invited_at ? (
-                  <p className="text-sm text-green-400">Invite sent</p>
+                  <p className="text-xs text-green-400 mt-2">Invite sent</p>
                 ) : (
-                  <button className="w-full mt-2 px-4 py-2 bg-[#D4AF37] text-black rounded-lg text-sm font-medium hover:bg-[#C4A030] transition-colors">Send Buyer Invite</button>
+                  <button className="w-full mt-3 bg-accent text-white py-2 rounded-lg text-sm font-medium hover:bg-accent-dark transition-colors">Send Buyer Invite</button>
                 )}
               </div>
             ) : (
-              <p className="text-sm text-gray-400">Awaiting offer acceptance.</p>
+              <p className="text-sm text-gray-500">Awaiting offer acceptance.</p>
             )}
           </div>
 
           {/* Transaction Info */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-white mb-4">Transaction Info</h2>
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
+            <h3 className="text-sm font-semibold text-white mb-3">Transaction Info</h3>
             <div className="space-y-3">
-              <div><p className="text-xs text-gray-400">Type</p><p className="text-sm text-white">{property.transaction_type === 'seller' ? 'Sale (Acting for Seller)' : 'Purchase (Acting for Buyer)'}</p></div>
-              <div><p className="text-xs text-gray-400">Status</p><p className="text-sm text-white">{property.status}</p></div>
-              {property.case_number && <div><p className="text-xs text-gray-400">Case Number</p><p className="text-sm text-white">{property.case_number}</p></div>}
-              <div><p className="text-xs text-gray-400">Created</p><p className="text-sm text-white">{new Date(property.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p></div>
+              <div><p className="text-xs text-gray-500">Type</p><p className="text-sm text-white">{property.transaction_type === 'seller' ? 'Sale (Acting for Seller)' : 'Purchase (Acting for Buyer)'}</p></div>
+              <div><p className="text-xs text-gray-500">Status</p><p className="text-sm text-white">{property.status}</p></div>
+              {property.case_number && <div><p className="text-xs text-gray-500">Case Number</p><p className="text-sm text-white">{property.case_number}</p></div>}
+              <div><p className="text-xs text-gray-500">Created</p><p className="text-sm text-white">{new Date(property.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p></div>
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
+            <h3 className="text-sm font-semibold text-white mb-3">Quick Actions</h3>
             <div className="space-y-2">
-              <Link to="/dashboard/messages" className="flex items-center gap-2 w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white transition-colors">
-                <MessageSquare className="w-4 h-4" /> Send Message
-              </Link>
-              <Link to="/dashboard/documents" className="flex items-center gap-2 w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white transition-colors">
-                <FileText className="w-4 h-4" /> Upload Document
-              </Link>
+              <Link to="/dashboard/messages" className="flex items-center gap-2 text-sm text-gray-300 hover:text-white p-2 rounded-lg hover:bg-gray-700/50 transition-colors"><MessageSquare className="w-4 h-4" /> Send Message</Link>
+              <Link to="/dashboard/documents" className="flex items-center gap-2 text-sm text-gray-300 hover:text-white p-2 rounded-lg hover:bg-gray-700/50 transition-colors"><FileText className="w-4 h-4" /> Upload Document</Link>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Conveyancer Picker Modal */}
+      {showConveyancerPicker && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-800 border border-gray-700 rounded-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white">Choose a Conveyancer</h2>
+                <button onClick={() => setShowConveyancerPicker(false)} className="text-gray-400 hover:text-white text-xl">&times;</button>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search by name, firm or town..."
+                  value={conveyancerSearch}
+                  onChange={(e) => setConveyancerSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {filteredConveyancers.map(c => (
+                <div key={c.id} className="bg-gray-700/50 border border-gray-600/50 rounded-xl p-4 hover:border-orange-500/50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-white">{c.contact_name}</h3>
+                      <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5"><Building2 className="w-3 h-3" /> {c.firm_name}</p>
+                      <p className="text-xs text-gray-500 mt-1">{c.email}</p>
+                      {c.town && <p className="text-xs text-gray-500">{c.town}{c.postcode ? `, ${c.postcode}` : ''}</p>}
+                    </div>
+                    <div className="text-right">
+                      {c.rating > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                          <span className="text-xs text-white">{c.rating}</span>
+                          <span className="text-xs text-gray-500">({c.review_count})</span>
+                        </div>
+                      )}
+                      {c.fixed_fee && <p className="text-xs text-green-400 mt-1">{`\u00a3`}{c.fixed_fee.toLocaleString()}</p>}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleInviteConveyancer(c)}
+                    disabled={invitingConveyancer}
+                    className="w-full mt-3 bg-orange-500 text-white py-2 rounded-lg text-xs font-medium hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {invitingConveyancer ? <><Loader2 className="w-3 h-3 animate-spin" /> Sending...</> : 'Select & Invite'}
+                  </button>
+                </div>
+              ))}
+              {filteredConveyancers.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-8">No conveyancers found. Try a different search.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
