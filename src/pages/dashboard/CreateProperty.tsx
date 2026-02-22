@@ -34,7 +34,7 @@ export default function CreateProperty() {
 
       const fullAddress = [form.address_line1, form.address_line2, form.city].filter(Boolean).join(', ')
 
-      const { error: dbError } = await supabase.from('properties').insert({
+            const { error: dbError, data: insertedData } = await supabase.from('properties').insert({
         agent_id: user.id,
         address: fullAddress,
         address_line1: form.address_line1,
@@ -49,9 +49,9 @@ export default function CreateProperty() {
         seller_email: form.seller_email,
         seller_phone: form.seller_phone,
         status: 'active',
-      })
+      }).select().single()
       if (dbError) throw dbError
-      navigate('/dashboard')
+            navigate(`/dashboard/transactions/${insertedData?.id || ''}`)
     } catch (err: unknown) {
       const message = (err as any)?.message || (err instanceof Error ? err.message : 'Something went wrong')
       setError(message)
