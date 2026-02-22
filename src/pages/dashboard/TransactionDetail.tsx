@@ -25,7 +25,7 @@ interface Property {
 }
 
 const defaultMilestones = [
-  { name: 'Instruction Received', description: 'You have been formally instructed to act. Ensure your agency agreement is signed, fees are agreed, and all client details are on file.', owner: 'agent', action: 'Mark as Instructed' } Ensure your agency agreement is signed, fees are agreed, and all client details are on file.' },
+  { name: 'Instruction Received', description: 'You have been formally instructed to act. Ensure your agency agreement is signed, fees are agreed, and all client details are on file.', owner: 'agent', action: 'Mark as Instructed' },
   { name: 'ID Verification', description: 'Anti-money laundering checks must be completed for all parties. Collect photo ID and proof of address before any further steps.', owner: 'conveyancer', action: 'Request ID Documents' },
   { name: 'Searches Ordered', description: 'Local authority, water, drainage and environmental searches have been submitted. Results typically take 2-6 weeks depending on the local council.', owner: 'conveyancer', action: 'Confirm Searches Ordered' },
   { name: 'Search Results', description: 'All search results have been received and reviewed. Any issues such as planning restrictions or flood risk should be flagged to the buyer now.', owner: 'conveyancer', action: 'Mark Results Received' },
