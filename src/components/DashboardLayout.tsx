@@ -23,6 +23,8 @@ export default function DashboardLayout() {
     navigate('/login')
   }
 
+  const sidebarClass = "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-primary-dark text-white transform transition-transform lg:translate-x-0 " + (sidebarOpen ? 'translate-x-0' : '-translate-x-full')
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile overlay */}
@@ -31,9 +33,7 @@ export default function DashboardLayout() {
       )}
 
       {/* Sidebar */}
-      <aside className={'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-primary-dark text-white transform transition-transform lg:translate-x-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }'}>
+      <aside className={sidebarClass}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-white/10">
           <Link to="/" className="text-xl font-bold">documove</Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
@@ -46,9 +46,7 @@ export default function DashboardLayout() {
               (item.path !== '/dashboard' && location.pathname.startsWith(item.path))
             return (
               <Link key={item.path} to={item.path}
-                className={'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
-                }'}
+                className={"flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors " + (isActive ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white')}
                 onClick={() => setSidebarOpen(false)}>
                 <item.icon className="w-5 h-5" />
                 {item.label}
