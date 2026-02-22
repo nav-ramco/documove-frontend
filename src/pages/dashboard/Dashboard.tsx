@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeftRight, FileText, MessageSquare, Clock, TrendingUp, AlertCircle } from 'lucide-react'
+import { ArrowLeftRight, FileText, MessageSquare, Clock, TrendingUp, AlertCircle, Plus } from 'lucide-react'
 
 const stats = [
   { label: 'Active Transactions', value: '12', icon: ArrowLeftRight, color: 'text-blue-600 bg-blue-50' },
@@ -18,10 +18,16 @@ const recentTransactions = [
 export default function Dashboard() {
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back, here's your overview.</p>
-      </div>
+            <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600 mt-1">Welcome back, here's your overview.</p>
+          </div>
+          <Link to="/dashboard/create-property" className="inline-flex items-center gap-2 bg-accent text-white px-4 py-2.5 rounded-lg font-medium hover:bg-accent-dark transition-colors">
+            <Plus className="w-4 h-4" />
+            New Property
+          </Link>
+        </div>
 
       {/* Stats */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -70,11 +76,11 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div className="grid sm:grid-cols-3 gap-4 mt-8">
-        <button className="bg-white rounded-xl border border-gray-100 p-5 text-left hover:shadow-md transition-shadow">
-          <TrendingUp className="w-6 h-6 text-primary" />
-          <p className="font-medium text-gray-900 mt-3 text-sm">New Transaction</p>
-          <p className="text-xs text-gray-500 mt-1">Start a new property transaction</p>
-        </button>
+        <Link to="/dashboard/create-property" className="bg-white rounded-xl border border-gray-100 p-5 text-left hover:shadow-md transition-shadow block">
+              <Plus className="w-6 h-6 text-primary" />
+              <p className="font-medium text-gray-900 mt-3 text-sm">New Property</p>
+              <p className="text-xs text-gray-500 mt-1">Create a property and invite parties</p>
+            </Link>
         <button className="bg-white rounded-xl border border-gray-100 p-5 text-left hover:shadow-md transition-shadow">
           <MessageSquare className="w-6 h-6 text-primary" />
           <p className="font-medium text-gray-900 mt-3 text-sm">Send Message</p>
