@@ -151,7 +151,7 @@ export default function TransactionDetail() {
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${i < completedSteps ? 'bg-green-100' : 'bg-gray-100'}`}>
                     {i < completedSteps ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Clock className="w-3 h-3 text-gray-400" />}
                   </div>
-                  <span className={`text-sm ${i < completedSteps ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{m.name}</span><p className="text-xs text-gray-400 mt-1">{m.description}</p>
+                  <div><span className={`text-sm ${i < completedSteps ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{m.name}</span><p className="text-xs text-gray-400 mt-0.5">{m.description}</p></div>
                 </div>
               ))}
             </div>
