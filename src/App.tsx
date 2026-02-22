@@ -14,6 +14,7 @@ import TransactionDetail from './pages/dashboard/TransactionDetail.tsx'
 import Messages from './pages/dashboard/Messages.tsx'
 import Documents from './pages/dashboard/Documents.tsx'
 import Settings from './pages/dashboard/Settings.tsx'
+import CreateProperty from './pages/dashboard/CreateProperty.tsx'
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
             </ProtectedRoute>
           }>
             <Route index element={<Dashboard />} />
+                          <Route path="create-property" element={<CreateProperty />} />
             <Route path="transactions" element={<Transactions />} />
             <Route path="transactions/:id" element={<TransactionDetail />} />
             <Route path="messages" element={<Messages />} />
