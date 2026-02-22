@@ -171,10 +171,10 @@ export default function CreateProperty() {
                 <h3 className="font-medium text-gray-900 text-sm mb-3 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Summary</h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p><span className="font-medium text-gray-900">Property:</span> {form.address_line1}, {form.city} {form.postcode}</p>
-                  <p><span className="font-medium text-gray-900">Price:</span> \u00a3{Number(form.price || 0).toLocaleString()}</p>
+                  <p><span className="font-medium text-gray-900">Price:</span> £{Number(form.price || 0).toLocaleString()}</p>
                   <p><span className="font-medium text-gray-900">Type:</span> {form.property_type} | {form.bedrooms} bed | {form.transaction_type === 'seller' ? 'sale' : 'purchase'}</p>
                   <hr className="my-2" />
-                  <p><span className="font-medium text-gray-900">Seller:</span> {form.seller_name} ({form.seller_email})</p>
+                                <p><span className="font-medium text-gray-900">Seller:</span> {form.seller_name || 'Not yet entered'}{form.seller_email ? ` (${form.seller_email})` : ''}</p>
                 </div>
                 <p className="text-xs text-gray-400 mt-3">The buyer will be invited later once an offer is accepted.</p>
               </div>
