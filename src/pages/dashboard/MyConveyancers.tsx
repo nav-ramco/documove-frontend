@@ -197,7 +197,7 @@ export default function MyConveyancers() {
                         <span className="text-xs text-gray-400">({c.review_count} reviews)</span>
                       </div>
                       {c.fixed_fee && (
-                        <span className="text-sm text-gray-500">Fixed fee: \u00a3{c.fixed_fee.toLocaleString()}</span>
+                        <span className="text-sm text-gray-500">Fixed fee: £{c.fixed_fee.toLocaleString()}</span>
                       )}
                     </div>
                   )}
