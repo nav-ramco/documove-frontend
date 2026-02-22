@@ -147,7 +147,7 @@ export default function Transactions() {
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-sm text-gray-500">{t.seller_name || 'No seller'}</span>
                       <span className="text-xs text-gray-400">|</span>
-                      <span className="text-sm font-medium text-gray-900">\u00a3{Number(t.price || 0).toLocaleString()}</span>
+                      <span className="text-sm font-medium text-gray-900">£{Number(t.price || 0).toLocaleString()}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         t.transaction_type === 'buyer' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'
                       }`}>{t.transaction_type === 'seller' ? 'Sale' : 'Purchase'}</span>
