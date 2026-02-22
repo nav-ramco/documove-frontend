@@ -102,7 +102,7 @@ export default function TransactionDetail() {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-gray-900">{property.address_line1 || property.address}</h1>
-                  <p className="text-sm text-gray-500 mt-0.5">{property.city} {property.postcode} {property.case_number ? `\u00b7 ${property.case_number}` : ''}</p>
+                  <p className="text-sm text-gray-500 mt-0.5">{property.city} {property.postcode} {property.case_number ? `· ${property.case_number}` : ''}</p>
                 </div>
               </div>
               <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${progress >= 80 ? 'bg-green-50 text-green-700' : progress >= 40 ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700'}`}>{property.current_stage || property.status || 'Active'}</span>
@@ -130,7 +130,7 @@ export default function TransactionDetail() {
               </div>
               <div>
                 <p className="text-xs text-gray-400">Asking Price</p>
-                <p className="text-sm text-gray-900 font-medium">\u00a3{Number(property.price || 0).toLocaleString()}</p>
+                <p className="text-sm text-gray-900 font-medium">£{Number(property.price || 0).toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-400">Property Type</p>
