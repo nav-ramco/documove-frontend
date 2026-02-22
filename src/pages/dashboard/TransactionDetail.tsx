@@ -25,15 +25,15 @@ interface Property {
 }
 
 const defaultMilestones = [
-  'Instruction Received',
-  'ID Verification',
-  'Searches Ordered',
-  'Search Results',
-  'Contract Pack Sent',
-  'Enquiries Raised',
-  'Mortgage Offer',
-  'Exchange of Contracts',
-  'Completion',
+  { name: 'Instruction Received', description: 'You have been formally instructed to act. Ensure your agency agreement is signed, fees are agreed, and all client details are on file.' },
+  { name: 'ID Verification', description: 'Anti-money laundering checks must be completed for all parties. Collect photo ID and proof of address before any further steps.' },
+  { name: 'Searches Ordered', description: 'Local authority, water, drainage and environmental searches have been submitted. Results typically take 2-6 weeks depending on the local council.' },
+  { name: 'Search Results', description: 'All search results have been received and reviewed. Any issues such as planning restrictions or flood risk should be flagged to the buyer now.' },
+  { name: 'Contract Pack Sent', description: 'The draft contract, title deeds and property information forms have been sent to the buyer\'s solicitor for review.' },
+  { name: 'Enquiries Raised', description: 'The buyer\'s solicitor has raised legal questions about the property. Responses from your seller are needed promptly to avoid delays.' },
+  { name: 'Mortgage Offer', description: 'The buyer\'s mortgage lender has issued a formal offer. The buyer\'s solicitor will now review the offer conditions before proceeding.' },
+  { name: 'Exchange of Contracts', description: 'Both parties have signed and exchanged contracts. The sale is now legally binding and a completion date has been agreed.' },
+  { name: 'Completion', description: 'Funds have been transferred and keys handed over. The property has legally changed hands. Congratulations!' },
 ]
 
 export default function TransactionDetail() {
@@ -151,7 +151,7 @@ export default function TransactionDetail() {
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${i < completedSteps ? 'bg-green-100' : 'bg-gray-100'}`}>
                     {i < completedSteps ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Clock className="w-3 h-3 text-gray-400" />}
                   </div>
-                  <span className={`text-sm ${i < completedSteps ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{m}</span>
+                  <span className={`text-sm ${i < completedSteps ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{m.name}</span><p className="text-xs text-gray-400 mt-0.5 ml-9">{m.description}</p>
                 </div>
               ))}
             </div>
