@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
 import Logo from '../components/Logo'
 
 export default function InviteAcceptPage() {
   const { token } = useParams<{ token: string }>()
-  const navigate = useNavigate()
+
   const { signUp } = useAuth()
 
   const [invite, setInvite] = useState<any>(null)
