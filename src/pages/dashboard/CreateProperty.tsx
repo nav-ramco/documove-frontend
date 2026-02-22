@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Home, User, Mail, Phone, MapPin } from 'lucide-react'
+import { ArrowLeft, Home, User, Mail, Phone, CheckCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 export default function CreateProperty() {
@@ -17,13 +17,12 @@ export default function CreateProperty() {
     property_type: 'semi-detached',
     bedrooms: '3',
     transaction_type: 'sale',
-    buyer_name: '',
-    buyer_email: '',
-    buyer_phone: '',
     seller_name: '',
     seller_email: '',
     seller_phone: '',
-    conveyancer_email: '',
+    buyer_name: '',
+    buyer_email: '',
+    buyer_phone: '',
   })
 
   const update = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }))
@@ -46,11 +45,10 @@ export default function CreateProperty() {
         property_type: form.property_type,
         bedrooms: parseInt(form.bedrooms) || 0,
         transaction_type: form.transaction_type,
-        buyer_name: form.buyer_name,
-        buyer_email: form.buyer_email,
         seller_name: form.seller_name,
         seller_email: form.seller_email,
-        conveyancer_email: form.conveyancer_email,
+        buyer_name: form.buyer_name,
+        buyer_email: form.buyer_email,
         status: 'active',
       })
       if (dbError) throw dbError
@@ -74,12 +72,17 @@ export default function CreateProperty() {
 
       <div className="bg-white rounded-xl border border-gray-100 p-6">
         <h1 className="text-xl font-bold text-gray-900 mb-1">Create New Property</h1>
-        <p className="text-gray-500 text-sm mb-6">Add property details and invite buyers, sellers and conveyancers.</p>
+        <p className="text-gray-500 text-sm mb-6">Add property details and invite the seller and buyer.</p>
 
         {/* Step indicators */}
         <div className="flex gap-2 mb-8">
           {[1, 2, 3].map(s => (
-            <button key={s} onClick={() => setStep(s)} className={`flex-1 h-1.5 rounded-full transition-colors ${step >= s ? 'bg-accent' : 'bg-gray-200'}`} />
+            <div key={s} className="flex-1">
+              <div className={`h-1.5 rounded-full transition-colors ${step >= s ? 'bg-accent' : 'bg-gray-200'}`} />
+              <p className={`text-xs mt-1 ${step >= s ? 'text-accent font-medium' : 'text-gray-400'}`}>
+                {s === 1 ? 'Property' : s === 2 ? 'Seller' : 'Buyer'}
+              </p>
+            </div>
           ))}
         </div>
 
@@ -107,7 +110,7 @@ export default function CreateProperty() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Asking Price (£) *</label>
+                  <label className={labelClass}>Asking Price (\u00a3) *</label>
                   <input className={inputClass} required type="number" value={form.price} onChange={e => update('price', e.target.value)} placeholder="e.g. 350000" />
                 </div>
                 <div>
@@ -137,33 +140,15 @@ export default function CreateProperty() {
                 </div>
               </div>
               <button type="button" onClick={() => setStep(2)} className="w-full bg-accent text-white py-2.5 rounded-lg font-medium hover:bg-accent-dark transition-colors mt-4">
-                Next: Buyer & Seller Details
+                Next: Seller Details
               </button>
             </div>
           )}
 
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2"><User className="w-4 h-4 text-accent" /> Buyer Details</h2>
-              <p className="text-xs text-gray-500">An invite will be sent to the buyer to create their Documove account.</p>
-              <div>
-                <label className={labelClass}>Buyer Full Name *</label>
-                <input className={inputClass} required value={form.buyer_name} onChange={e => update('buyer_name', e.target.value)} placeholder="e.g. Sarah Johnson" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}><Mail className="w-3 h-3 inline mr-1" />Email *</label>
-                  <input className={inputClass} required type="email" value={form.buyer_email} onChange={e => update('buyer_email', e.target.value)} placeholder="buyer@email.com" />
-                </div>
-                <div>
-                  <label className={labelClass}><Phone className="w-3 h-3 inline mr-1" />Phone</label>
-                  <input className={inputClass} value={form.buyer_phone} onChange={e => update('buyer_phone', e.target.value)} placeholder="07700 900000" />
-                </div>
-              </div>
-
-              <hr className="my-4" />
               <h2 className="font-semibold text-gray-900 flex items-center gap-2"><User className="w-4 h-4 text-accent" /> Seller Details</h2>
-              <p className="text-xs text-gray-500">An invite will be sent to the seller to create their Documove account.</p>
+              <p className="text-xs text-gray-500">An invite will be sent to the seller to create their Documove account and manage their side of the transaction.</p>
               <div>
                 <label className={labelClass}>Seller Full Name *</label>
                 <input className={inputClass} required value={form.seller_name} onChange={e => update('seller_name', e.target.value)} placeholder="e.g. James Williams" />
@@ -180,29 +165,40 @@ export default function CreateProperty() {
               </div>
               <div className="flex gap-3 mt-4">
                 <button type="button" onClick={() => setStep(1)} className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors">Back</button>
-                <button type="button" onClick={() => setStep(3)} className="flex-1 bg-accent text-white py-2.5 rounded-lg font-medium hover:bg-accent-dark transition-colors">Next: Conveyancer</button>
+                <button type="button" onClick={() => setStep(3)} className="flex-1 bg-accent text-white py-2.5 rounded-lg font-medium hover:bg-accent-dark transition-colors">Next: Buyer Details</button>
               </div>
             </div>
           )}
 
           {step === 3 && (
             <div className="space-y-4">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2"><MapPin className="w-4 h-4 text-accent" /> Assign Conveyancer</h2>
-              <p className="text-xs text-gray-500">Enter the conveyancer's email to assign them to this transaction. They will receive a notification.</p>
+              <h2 className="font-semibold text-gray-900 flex items-center gap-2"><User className="w-4 h-4 text-accent" /> Buyer Details</h2>
+              <p className="text-xs text-gray-500">An invite will be sent to the buyer to create their Documove account and track their purchase.</p>
               <div>
-                <label className={labelClass}>Conveyancer Email</label>
-                <input className={inputClass} type="email" value={form.conveyancer_email} onChange={e => update('conveyancer_email', e.target.value)} placeholder="conveyancer@lawfirm.co.uk" />
+                <label className={labelClass}>Buyer Full Name *</label>
+                <input className={inputClass} required value={form.buyer_name} onChange={e => update('buyer_name', e.target.value)} placeholder="e.g. Sarah Johnson" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}><Mail className="w-3 h-3 inline mr-1" />Email *</label>
+                  <input className={inputClass} required type="email" value={form.buyer_email} onChange={e => update('buyer_email', e.target.value)} placeholder="buyer@email.com" />
+                </div>
+                <div>
+                  <label className={labelClass}><Phone className="w-3 h-3 inline mr-1" />Phone</label>
+                  <input className={inputClass} value={form.buyer_phone} onChange={e => update('buyer_phone', e.target.value)} placeholder="07700 900000" />
+                </div>
               </div>
 
               {/* Summary */}
               <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                <h3 className="font-medium text-gray-900 text-sm mb-3">Summary</h3>
+                <h3 className="font-medium text-gray-900 text-sm mb-3 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Summary</h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p><span className="font-medium text-gray-900">Property:</span> {form.address_line1}, {form.city} {form.postcode}</p>
-                  <p><span className="font-medium text-gray-900">Price:</span> £{Number(form.price || 0).toLocaleString()}</p>
-                  <p><span className="font-medium text-gray-900">Buyer:</span> {form.buyer_name} ({form.buyer_email})</p>
+                  <p><span className="font-medium text-gray-900">Price:</span> \u00a3{Number(form.price || 0).toLocaleString()}</p>
+                  <p><span className="font-medium text-gray-900">Type:</span> {form.property_type} | {form.bedrooms} bed | {form.transaction_type}</p>
+                  <hr className="my-2" />
                   <p><span className="font-medium text-gray-900">Seller:</span> {form.seller_name} ({form.seller_email})</p>
-                  {form.conveyancer_email && <p><span className="font-medium text-gray-900">Conveyancer:</span> {form.conveyancer_email}</p>}
+                  <p><span className="font-medium text-gray-900">Buyer:</span> {form.buyer_name} ({form.buyer_email})</p>
                 </div>
               </div>
 
