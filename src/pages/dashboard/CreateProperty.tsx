@@ -44,12 +44,13 @@ export default function CreateProperty() {
         transaction_type: form.transaction_type,
         seller_name: form.seller_name,
         seller_email: form.seller_email,
+        seller_phone: form.seller_phone,
         status: 'active',
       })
       if (dbError) throw dbError
       navigate('/dashboard')
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Something went wrong'
+            const message = (err as any)?.message || (err instanceof Error ? err.message : 'Something went wrong')
       setError(message)
     } finally {
       setLoading(false)
