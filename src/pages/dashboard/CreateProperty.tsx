@@ -16,7 +16,7 @@ export default function CreateProperty() {
     price: '',
     property_type: 'semi-detached',
     bedrooms: '3',
-    transaction_type: 'sale',
+    transaction_type: 'seller',
     seller_name: '',
     seller_email: '',
     seller_phone: '',
@@ -32,8 +32,11 @@ export default function CreateProperty() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not logged in')
 
+      const fullAddress = [form.address_line1, form.address_line2, form.city].filter(Boolean).join(', ')
+
       const { error: dbError } = await supabase.from('properties').insert({
         agent_id: user.id,
+        address: fullAddress,
         address_line1: form.address_line1,
         address_line2: form.address_line2,
         city: form.city,
@@ -50,7 +53,7 @@ export default function CreateProperty() {
       if (dbError) throw dbError
       navigate('/dashboard')
     } catch (err: unknown) {
-            const message = (err as any)?.message || (err instanceof Error ? err.message : 'Something went wrong')
+      const message = (err as any)?.message || (err instanceof Error ? err.message : 'Something went wrong')
       setError(message)
     } finally {
       setLoading(false)
@@ -86,6 +89,7 @@ export default function CreateProperty() {
           {step === 1 && (
             <div className="space-y-4">
               <h2 className="font-semibold text-gray-900 flex items-center gap-2"><Home className="w-4 h-4 text-accent" /> Property Details</h2>
+
               <div>
                 <label className={labelClass}>Address Line 1 *</label>
                 <input className={inputClass} required value={form.address_line1} onChange={e => update('address_line1', e.target.value)} placeholder="e.g. 14 Maple Drive" />
@@ -130,11 +134,12 @@ export default function CreateProperty() {
                 <div>
                   <label className={labelClass}>Transaction Type</label>
                   <select className={inputClass} value={form.transaction_type} onChange={e => update('transaction_type', e.target.value)}>
-                    <option value="sale">Sale</option>
-                    <option value="purchase">Purchase</option>
+                    <option value="seller">Sale (Acting for Seller)</option>
+                    <option value="buyer">Purchase (Acting for Buyer)</option>
                   </select>
                 </div>
               </div>
+
               <button type="button" onClick={() => setStep(2)} className="w-full bg-accent text-white py-2.5 rounded-lg font-medium hover:bg-accent-dark transition-colors mt-4">
                 Next: Invite Seller
               </button>
@@ -145,6 +150,7 @@ export default function CreateProperty() {
             <div className="space-y-4">
               <h2 className="font-semibold text-gray-900 flex items-center gap-2"><User className="w-4 h-4 text-accent" /> Invite Seller</h2>
               <p className="text-xs text-gray-500">The seller will receive an email invitation to create their Documove account and manage their side of the transaction.</p>
+
               <div>
                 <label className={labelClass}>Seller Full Name *</label>
                 <input className={inputClass} required value={form.seller_name} onChange={e => update('seller_name', e.target.value)} placeholder="e.g. James Williams" />
@@ -165,8 +171,8 @@ export default function CreateProperty() {
                 <h3 className="font-medium text-gray-900 text-sm mb-3 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Summary</h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p><span className="font-medium text-gray-900">Property:</span> {form.address_line1}, {form.city} {form.postcode}</p>
-                  <p><span className="font-medium text-gray-900">Price:</span> £{Number(form.price || 0).toLocaleString()}</p>
-                  <p><span className="font-medium text-gray-900">Type:</span> {form.property_type} | {form.bedrooms} bed | {form.transaction_type}</p>
+                  <p><span className="font-medium text-gray-900">Price:</span> \u00a3{Number(form.price || 0).toLocaleString()}</p>
+                  <p><span className="font-medium text-gray-900">Type:</span> {form.property_type} | {form.bedrooms} bed | {form.transaction_type === 'seller' ? 'sale' : 'purchase'}</p>
                   <hr className="my-2" />
                   <p><span className="font-medium text-gray-900">Seller:</span> {form.seller_name} ({form.seller_email})</p>
                 </div>
