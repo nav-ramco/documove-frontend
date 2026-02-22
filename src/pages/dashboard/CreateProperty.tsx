@@ -110,7 +110,7 @@ export default function CreateProperty() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Asking Price (\u00a3) *</label>
+                                  <label className={labelClass}>Asking Price (£) *</label>
                   <input className={inputClass} required type="number" value={form.price} onChange={e => update('price', e.target.value)} placeholder="e.g. 350000" />
                 </div>
                 <div>
@@ -194,7 +194,7 @@ export default function CreateProperty() {
                 <h3 className="font-medium text-gray-900 text-sm mb-3 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Summary</h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p><span className="font-medium text-gray-900">Property:</span> {form.address_line1}, {form.city} {form.postcode}</p>
-                  <p><span className="font-medium text-gray-900">Price:</span> \u00a3{Number(form.price || 0).toLocaleString()}</p>
+                                    <p><span className="font-medium text-gray-900">Price:</span> £{Number(form.price || 0).toLocaleString()}</p>
                   <p><span className="font-medium text-gray-900">Type:</span> {form.property_type} | {form.bedrooms} bed | {form.transaction_type}</p>
                   <hr className="my-2" />
                   <p><span className="font-medium text-gray-900">Seller:</span> {form.seller_name} ({form.seller_email})</p>
