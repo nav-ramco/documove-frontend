@@ -28,13 +28,13 @@ export default function LandingPage() {
       <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
-            Conveyancing control for UK estate agents and conveyancers
+            Track every property transaction in one place
           </h1>
           <p className="mt-6 text-lg text-accent font-semibold">
-            One shared dashboard for every sale
+            The shared dashboard for estate agents and conveyancers
           </p>
           <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
-            Give buyers, sellers, estate agents, and conveyancers real-time visibility of every property transaction. Both agents and conveyancers can see live progress, reduce admin time, and handle more properties with existing teams.
+            Stop chasing updates by phone and email. Documove gives agents, conveyancers, buyers and sellers one dashboard to see exactly where every transaction stands.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register" className="inline-flex items-center justify-center gap-2 bg-accent text-white px-8 py-3.5 rounded-lg text-base font-semibold hover:bg-accent-dark transition-colors">
@@ -45,7 +45,7 @@ export default function LandingPage() {
             </a>
           </div>
           <div className="mt-8 text-sm text-gray-400">
-            No credit card required · Built for agents and conveyancers
+            Free to get started · No credit card required
           </div>
         </div>
       </section>
@@ -54,13 +54,13 @@ export default function LandingPage() {
       <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900">Why Documove vs spreadsheets, email and phone calls</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Why agents and conveyancers use Documove</h2>
           </div>
           <div className="mt-16 grid md:grid-cols-3 gap-8">
             {[
               { icon: CheckCircle2, title: 'Less chasing', desc: 'Real-time updates mean everyone can check progress instantly \u2013 no more phone tag or waiting for email replies' },
               { icon: Building2, title: 'Clearer updates', desc: 'Everyone sees the same timeline, documents and status \u2013 no more conflicting information or missed messages' },
-              { icon: Scale, title: 'Extra fee income for agents', desc: 'Earn \u00a350 from each buyer and seller when they pay conveyancing fees through Documove \u2013 free revenue for agents' },
+              { icon: Scale, title: 'Handle more with less', desc: 'Spend less time on admin and more time selling \u2013 manage more transactions without growing your team' },
             ].map((f, i) => (
               <div key={i} className="text-center">
                 <div className="w-14 h-14 bg-accent/10 rounded-full flex items-center justify-center mx-auto">
@@ -254,8 +254,8 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="py-20 bg-primary">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white">Ready to transform your property transactions?</h2>
-          <p className="mt-4 text-lg text-gray-300">Join the platform that makes conveyancing faster, clearer, and more connected.</p>
+          <h2 className="text-3xl font-bold text-white">Ready to save time on every transaction?</h2>
+          <p className="mt-4 text-lg text-gray-300">Join hundreds of agents and conveyancers who spend less time chasing and more time closing.</p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register" className="inline-flex items-center justify-center gap-2 bg-accent text-white px-8 py-3.5 rounded-lg text-base font-semibold hover:bg-accent-dark transition-colors">
               Get Started Free
