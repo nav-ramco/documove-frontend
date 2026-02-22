@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { User, Bell, Shield, CreditCard, Building2, Mail, Phone, MapPin } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { User, Bell, Shield, CreditCard, Building2, Mail, Phone, MapPin, Loader2, CheckCircle } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../lib/AuthContext'
 
 const tabs = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -10,7 +12,79 @@ const tabs = [
 ]
 
 export default function Settings() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [profile, setProfile] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    company_name: '',
+    company_address: '',
+    avatar_url: '',
+    role: '',
+    metadata: {} as Record<string, any>,
+  })
+
+  useEffect(() => {
+    if (!user) return
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      if (data && !error) {
+        setProfile({
+          full_name: data.full_name || '',
+          email: data.email || user.email || '',
+          phone: data.phone || '',
+          company_name: data.company_name || '',
+          company_address: data.company_address || '',
+          avatar_url: data.avatar_url || '',
+          role: data.role || '',
+          metadata: data.metadata || {},
+        })
+      }
+      setLoading(false)
+    }
+    fetchProfile()
+  }, [user])
+
+  const handleSave = async () => {
+    if (!user) return
+    setSaving(true)
+    setSaved(false)
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        full_name: profile.full_name,
+        phone: profile.phone,
+        company_name: profile.company_name,
+        company_address: profile.company_address,
+        metadata: profile.metadata,
+      })
+      .eq('id', user.id)
+    setSaving(false)
+    if (!error) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    }
+  }
+
+  const initials = profile.full_name
+    ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : user?.email?.charAt(0).toUpperCase() || 'U'
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -46,7 +120,7 @@ export default function Settings() {
 
               {/* Avatar */}
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-bold">JD</div>
+                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-bold">{initials}</div>
                 <div>
                   <button className="text-sm font-medium text-primary hover:text-primary-dark">Change photo</button>
                   <p className="text-xs text-gray-400 mt-1">JPG, PNG or GIF. Max 5MB.</p>
@@ -55,30 +129,41 @@ export default function Settings() {
 
               {/* Form */}
               <div className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">First Name</label>
-                    <input type="text" defaultValue="John" className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Last Name</label>
-                    <input type="text" defaultValue="Doe" className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+                  <input
+                    type="text"
+                    value={profile.full_name}
+                    onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input type="email" defaultValue="john.doe@example.com" className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                    <input
+                      type="email"
+                      value={profile.email}
+                      disabled
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                    />
                   </div>
+                  <p className="text-xs text-gray-400 mt-1">Email cannot be changed here</p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input type="tel" defaultValue="+44 7700 900000" className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                    <input
+                      type="tel"
+                      value={profile.phone}
+                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                      placeholder="+44 7700 900000"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    />
                   </div>
                 </div>
 
@@ -86,13 +171,28 @@ export default function Settings() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                    <textarea defaultValue="123 High Street, London, SW1A 1AA" rows={3} className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none" />
+                    <textarea
+                      value={profile.company_address}
+                      onChange={(e) => setProfile({ ...profile, company_address: e.target.value })}
+                      rows={3}
+                      placeholder="Your business address"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                    />
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-4 border-t border-gray-100">
-                  <button className="px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
-                    Save Changes
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                  {saved && (
+                    <span className="flex items-center gap-1 text-sm text-green-600">
+                      <CheckCircle className="w-4 h-4" /> Saved
+                    </span>
+                  )}
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </div>
@@ -157,23 +257,12 @@ export default function Settings() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-900">Professional Plan</p>
-                    <p className="text-xs text-gray-500 mt-0.5">£49/month · Next billing date: 15 Feb 2024</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Billing details coming soon</p>
                   </div>
                   <button className="text-sm font-medium text-primary hover:text-primary-dark">Manage Plan</button>
                 </div>
               </div>
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Payment History</h3>
-              <div className="space-y-2">
-                {['15 Jan 2024', '15 Dec 2023', '15 Nov 2023'].map(date => (
-                  <div key={date} className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm text-gray-900">Professional Plan</p>
-                      <p className="text-xs text-gray-400">{date}</p>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">£49.00</span>
-                  </div>
-                ))}
-              </div>
+              <p className="text-sm text-gray-500">Payment history and invoices will appear here once Stripe integration is live.</p>
             </div>
           )}
 
@@ -183,18 +272,46 @@ export default function Settings() {
               <div className="space-y-5">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Company Name</label>
-                  <input type="text" defaultValue="Doe Property Services Ltd" className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                  <input
+                    type="text"
+                    value={profile.company_name}
+                    onChange={(e) => setProfile({ ...profile, company_name: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">SRA Number</label>
-                  <input type="text" defaultValue="123456" className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                  <input
+                    type="text"
+                    value={profile.metadata?.sra_number || ''}
+                    onChange={(e) => setProfile({ ...profile, metadata: { ...profile.metadata, sra_number: e.target.value } })}
+                    placeholder="e.g. 123456"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Company Registration</label>
-                  <input type="text" defaultValue="12345678" className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                  <input
+                    type="text"
+                    value={profile.metadata?.company_reg || ''}
+                    onChange={(e) => setProfile({ ...profile, metadata: { ...profile.metadata, company_reg: e.target.value } })}
+                    placeholder="e.g. 12345678"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
                 </div>
-                <div className="flex justify-end pt-4 border-t border-gray-100">
-                  <button className="px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">Save Changes</button>
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                  {saved && (
+                    <span className="flex items-center gap-1 text-sm text-green-600">
+                      <CheckCircle className="w-4 h-4" /> Saved
+                    </span>
+                  )}
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
                 </div>
               </div>
             </div>
