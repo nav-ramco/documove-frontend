@@ -13,8 +13,7 @@ export default function LandingPage() {
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-sm text-gray-300 hover:text-white">Features</a>
               <a href="#agents" className="text-sm text-gray-300 hover:text-white">Estate Agents</a>
-              <a href="#conveyancers" className="text-sm text-gray-300 hover:text-white">Conveyancers</a>
-              <a href="#pricing" className="text-sm text-gray-300 hover:text-white">Pricing</a>
+              <a href="#conveyancers" className="text-sm text-gray-300 hover:text-white">Conveyancers</a>            
             </div>
             <div className="flex items-center gap-3">
               <Link to="/login" className="text-sm font-medium text-gray-300 hover:text-white">Sign In</Link>
@@ -34,7 +33,7 @@ export default function LandingPage() {
             The shared dashboard for estate agents and conveyancers
           </p>
           <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
-            Stop chasing updates by phone and email. Documove gives agents, conveyancers, buyers and sellers one dashboard to see exactly where every transaction stands.
+            Stop chasing updates by phone and email. Documove connects estate agents, conveyancers, buyers and sellers on one dashboard. Agents invite buyers and sellers directly – no separate sign-ups needed.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register" className="inline-flex items-center justify-center gap-2 bg-accent text-white px-8 py-3.5 rounded-lg text-base font-semibold hover:bg-accent-dark transition-colors">
@@ -45,7 +44,7 @@ export default function LandingPage() {
             </a>
           </div>
           <div className="mt-8 text-sm text-gray-400">
-            Free to get started · No credit card required
+            For estate agents and conveyancers · Buyers & sellers are invited by agents
           </div>
         </div>
       </section>
@@ -232,7 +231,7 @@ export default function LandingPage() {
             <Users className="w-4 h-4" /> For Buyers & Sellers
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Finally, clarity in your property transaction</h2>
-          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">No more wondering where things stand. Track your purchase or sale in real-time, sign documents digitally, and message your team securely.</p>
+                    <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Once your agent invites you to Documove, you can track your purchase or sale in real-time, sign documents digitally, and message your team securely.</p>
           <div className="mt-12 grid sm:grid-cols-3 gap-8 max-w-3xl mx-auto">
             {[
               { title: 'Track Progress', desc: 'See exactly where your transaction is at any time.' },
