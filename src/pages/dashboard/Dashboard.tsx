@@ -126,10 +126,10 @@ export default function Dashboard() {
               <Link key={p.id} to={`/dashboard/transactions/${p.id}`} className="flex items-center gap-4 p-5 hover:bg-gray-50 transition-colors">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-gray-900 text-sm truncate">{p.address_line1 || p.address}, {p.city} {p.postcode}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{p.seller_name || 'No seller invited'} {p.case_number ? `\u00b7 ${p.case_number}` : ''}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{p.seller_name || 'No seller invited'} {p.case_number ? `· ${p.case_number}` : ''}</p>
                 </div>
                 <div className="hidden sm:block text-right mr-3">
-                  <p className="text-sm font-medium text-gray-900">\u00a3{Number(p.price || 0).toLocaleString()}</p>
+                  <p className="text-sm font-medium text-gray-900">£{Number(p.price || 0).toLocaleString()}</p>
                   <p className="text-xs text-gray-400">{p.property_type || 'Property'}</p>
                 </div>
                 <div className="hidden sm:block w-24">
