@@ -25,15 +25,15 @@ interface Property {
 }
 
 const defaultMilestones = [
-  { name: 'Instruction Received', description: 'You have been formally instructed to act. Ensure your agency agreement is signed, fees are agreed, and all client details are on file.' },
-  { name: 'ID Verification', description: 'Anti-money laundering checks must be completed for all parties. Collect photo ID and proof of address before any further steps.' },
-  { name: 'Searches Ordered', description: 'Local authority, water, drainage and environmental searches have been submitted. Results typically take 2-6 weeks depending on the local council.' },
-  { name: 'Search Results', description: 'All search results have been received and reviewed. Any issues such as planning restrictions or flood risk should be flagged to the buyer now.' },
-  { name: 'Contract Pack Sent', description: 'The draft contract, title deeds and property information forms have been sent to the buyer\'s solicitor for review.' },
-  { name: 'Enquiries Raised', description: 'The buyer\'s solicitor has raised legal questions about the property. Responses from your seller are needed promptly to avoid delays.' },
-  { name: 'Mortgage Offer', description: 'The buyer\'s mortgage lender has issued a formal offer. The buyer\'s solicitor will now review the offer conditions before proceeding.' },
-  { name: 'Exchange of Contracts', description: 'Both parties have signed and exchanged contracts. The sale is now legally binding and a completion date has been agreed.' },
-  { name: 'Completion', description: 'Funds have been transferred and keys handed over. The property has legally changed hands. Congratulations!' },
+  { name: 'Instruction Received', description: 'You have been formally instructed to act. Ensure your agency agreement is signed, fees are agreed, and all client details are on file.', owner: 'agent', action: 'Mark as Instructed' } Ensure your agency agreement is signed, fees are agreed, and all client details are on file.' },
+  { name: 'ID Verification', description: 'Anti-money laundering checks must be completed for all parties. Collect photo ID and proof of address before any further steps.', owner: 'conveyancer', action: 'Request ID Documents' },
+  { name: 'Searches Ordered', description: 'Local authority, water, drainage and environmental searches have been submitted. Results typically take 2-6 weeks depending on the local council.', owner: 'conveyancer', action: 'Confirm Searches Ordered' },
+  { name: 'Search Results', description: 'All search results have been received and reviewed. Any issues such as planning restrictions or flood risk should be flagged to the buyer now.', owner: 'conveyancer', action: 'Mark Results Received' },
+  { name: 'Contract Pack Sent', description: 'The draft contract, title deeds and property information forms have been sent to the buyer\'s solicitor for review.', owner: 'conveyancer', action: 'Confirm Pack Sent' },
+  { name: 'Enquiries Raised', description: 'The buyer\'s solicitor has raised legal questions about the property. Responses from your seller are needed promptly to avoid delays.', owner: 'conveyancer', action: 'Log Enquiry Response' },
+  { name: 'Mortgage Offer', description: 'The buyer\'s mortgage lender has issued a formal offer. The buyer\'s solicitor will now review the offer conditions before proceeding.', owner: 'conveyancer', action: 'Confirm Offer Received' },
+  { name: 'Exchange of Contracts', description: 'Both parties have signed and exchanged contracts. The sale is now legally binding and a completion date has been agreed.', owner: 'both', action: 'Confirm Exchange' },
+  { name: 'Completion', description: 'Funds have been transferred and keys handed over. The property has legally changed hands. Congratulations!', owner: 'both', action: 'Mark Complete' },
 ]
 
 export default function TransactionDetail() {
@@ -151,7 +151,7 @@ export default function TransactionDetail() {
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${i < completedSteps ? 'bg-green-100' : 'bg-gray-100'}`}>
                     {i < completedSteps ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Clock className="w-3 h-3 text-gray-400" />}
                   </div>
-                  <div><span className={`text-sm ${i < completedSteps ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{m.name}</span><p className="text-xs text-gray-400 mt-0.5">{m.description}</p></div>
+                  <div className="flex-1"><div className="flex items-center gap-2"><span className={`text-sm ${i < completedSteps ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{m.name}</span><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${m.owner === 'agent' ? 'bg-blue-50 text-blue-600' : m.owner === 'both' ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600'}`}>{m.owner === 'agent' ? 'Agent' : m.owner === 'both' ? 'Agent & Conveyancer' : 'Conveyancer'}</span></div><p className="text-xs text-gray-400 mt-0.5">{m.description}</p>{i === completedSteps && <button className={`mt-2 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${m.owner === 'agent' ? 'bg-blue-600 text-white hover:bg-blue-700' : m.owner === 'both' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>{m.action}</button>}</div>
                 </div>
               ))}
             </div>
