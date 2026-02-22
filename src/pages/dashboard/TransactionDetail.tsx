@@ -47,6 +47,7 @@ export default function TransactionDetail() {
   const [loading, setLoading] = useState(true)
   const [inviteLoading, setInviteLoading] = useState(false)
   const [inviteSuccess, setInviteSuccess] = useState(false)
+    const [advancing, setAdvancing] = useState(false)
 
   useEffect(() => {
     fetchProperty()
@@ -80,6 +81,29 @@ export default function TransactionDetail() {
     }
   }
 
+    const handleAdvanceMilestone = async (milestoneIndex: number) => {
+    if (!property) return
+    setAdvancing(true)
+    try {
+      const nextStage = defaultMilestones[milestoneIndex].name
+      const newProgress = Math.round(((milestoneIndex + 1) / defaultMilestones.length) * 100)
+      const { error } = await supabase
+        .from('properties')
+        .update({
+          current_stage: nextStage,
+          progress_percentage: newProgress
+        })
+        .eq('id', property.id)
+      if (!error) {
+        setProperty({ ...property, current_stage: nextStage, progress_percentage: newProgress })
+      }
+    } catch (err) {
+      console.error('Error advancing milestone:', err)
+    } finally {
+      setAdvancing(false)
+    }
+  }
+
   if (loading) return <div className="text-center py-12"><p className="text-gray-400">Loading property details...</p></div>
   if (!property) return (
     <div className="text-center py-12">
@@ -89,7 +113,7 @@ export default function TransactionDetail() {
   )
 
   const progress = property.progress_percentage || 5
-  const completedSteps = Math.floor((progress / 100) * defaultMilestones.length)
+  const completedSteps = property.current_stage ? defaultMilestones.findIndex(m => m.name === property.current_stage) + 1 : 0
 
   return (
     <div>
@@ -156,7 +180,7 @@ export default function TransactionDetail() {
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${i < completedSteps ? 'bg-green-100' : 'bg-gray-100'}`}>
                     {i < completedSteps ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Clock className="w-3 h-3 text-gray-400" />}
                   </div>
-                  <div className="flex-1"><div className="flex items-center gap-2"><span className={`text-sm ${i < completedSteps ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{m.name}</span><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${m.owner === 'agent' ? 'bg-blue-50 text-blue-600' : m.owner === 'both' ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600'}`}>{m.owner === 'agent' ? 'Agent' : m.owner === 'both' ? 'Agent & Conveyancer' : 'Conveyancer'}</span></div><p className="text-xs text-gray-400 mt-0.5">{m.description}</p>{i === completedSteps && <button className={`mt-2 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${m.owner === 'agent' ? 'bg-blue-600 text-white hover:bg-blue-700' : m.owner === 'both' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>{m.action}</button>}</div>
+                  <div className="flex-1"><div className="flex items-center gap-2"><span className={`text-sm ${i < completedSteps ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{m.name}</span><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${m.owner === 'agent' ? 'bg-blue-50 text-blue-600' : m.owner === 'both' ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600'}`}>{m.owner === 'agent' ? 'Agent' : m.owner === 'both' ? 'Agent & Conveyancer' : 'Conveyancer'}</span></div><p className="text-xs text-gray-400 mt-0.5">{m.description}</p>{i === completedSteps && <button onClick={() => handleAdvanceMilestone(i)} disabled={advancing} className={`mt-2 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${m.owner === 'agent' ? 'bg-blue-600 text-white hover:bg-blue-700' : m.owner === 'both' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>{advancing ? 'Processing...' : m.action}</button>}</div>
                 </div>
               ))}
             </div>
