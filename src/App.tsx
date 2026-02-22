@@ -15,6 +15,7 @@ import Messages from './pages/dashboard/Messages.tsx'
 import Documents from './pages/dashboard/Documents.tsx'
 import Settings from './pages/dashboard/Settings.tsx'
 import CreateProperty from './pages/dashboard/CreateProperty.tsx'
+import MyConveyancers from './pages/dashboard/MyConveyancers.tsx'
 
 export default function App() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="messages" element={<Messages />} />
             <Route path="documents" element={<Documents />} />
             <Route path="settings" element={<Settings />} />
+                          <Route path="my-conveyancers" element={<MyConveyancers />} />
           </Route>
         </Routes>
       </Router>
