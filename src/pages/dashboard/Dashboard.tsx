@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeftRight, FileText, MessageSquare, Clock, TrendingUp, AlertCircle, Plus } from 'lucide-react'
+import { ArrowLeftRight, FileText, MessageSquare, Clock, AlertCircle, Plus } from 'lucide-react'
 
 const stats = [
   { label: 'Active Transactions', value: '12', icon: ArrowLeftRight, color: 'text-blue-600 bg-blue-50' },
