@@ -1,28 +1,108 @@
-import { useState } from 'react'
-import { FileText, Upload, Download, Search, FolderOpen, Clock, CheckCircle2, Eye } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { FileText, Upload, Download, Search, FolderOpen, Clock, CheckCircle2, Eye, Loader2 } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../lib/AuthContext'
 
-const documents = [
-  { id: '1', name: 'Title Deeds - 14 Maple Drive', type: 'PDF', size: '2.4 MB', category: 'Legal', transaction: '14 Maple Drive', date: '2024-01-15', status: 'Verified' },
-  { id: '2', name: 'Property Information Form (TA6)', type: 'PDF', size: '1.8 MB', category: 'Forms', transaction: '14 Maple Drive', date: '2024-01-14', status: 'Verified' },
-  { id: '3', name: 'Fixtures & Fittings Form (TA10)', type: 'PDF', size: '890 KB', category: 'Forms', transaction: '27 Oak Avenue', date: '2024-01-13', status: 'Pending Review' },
-  { id: '4', name: 'Local Authority Search', type: 'PDF', size: '3.1 MB', category: 'Searches', transaction: '14 Maple Drive', date: '2024-01-12', status: 'Verified' },
-  { id: '5', name: 'Environmental Search', type: 'PDF', size: '1.5 MB', category: 'Searches', transaction: '8 Pine Close', date: '2024-01-11', status: 'Pending Review' },
-  { id: '6', name: 'Mortgage Offer Letter', type: 'PDF', size: '540 KB', category: 'Financial', transaction: '14 Maple Drive', date: '2024-01-10', status: 'Verified' },
-  { id: '7', name: 'Draft Contract', type: 'PDF', size: '2.1 MB', category: 'Legal', transaction: '27 Oak Avenue', date: '2024-01-09', status: 'Awaiting Signature' },
-  { id: '8', name: 'ID Verification - Passport', type: 'JPG', size: '1.2 MB', category: 'Identity', transaction: '52 Cedar Lane', date: '2024-01-08', status: 'Verified' },
-]
+interface Document {
+  id: string
+  property_id: string
+  title: string
+  description: string
+  document_type: string
+  file_url: string
+  file_name: string
+  file_size: number
+  mime_type: string
+  uploaded_by: string
+  visible_to_buyer: boolean
+  visible_to_seller: boolean
+  visible_to_agent: boolean
+  requires_signature: boolean
+  metadata: any
+  created_at: string
+  property_address?: string
+}
 
 const categories = ['All', 'Legal', 'Forms', 'Searches', 'Financial', 'Identity']
 
+function formatFileSize(bytes: number): string {
+  if (!bytes) return '0 B'
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
+function getDocCategory(type: string): string {
+  const map: Record<string, string> = {
+    title_deeds: 'Legal', contract: 'Legal', transfer: 'Legal',
+    ta6: 'Forms', ta7: 'Forms', ta10: 'Forms', form: 'Forms',
+    local_search: 'Searches', environmental_search: 'Searches', water_search: 'Searches',
+    mortgage_offer: 'Financial', invoice: 'Financial',
+    id_verification: 'Identity', passport: 'Identity', driving_licence: 'Identity',
+  }
+  return map[type] || 'Legal'
+}
+
 export default function Documents() {
+  const { user } = useAuth()
+  const [documents, setDocuments] = useState<Document[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
 
+  useEffect(() => {
+    if (!user) return
+    const fetchDocuments = async () => {
+      // Get transactions the user is involved in
+      const { data: transactions } = await supabase
+        .from('transactions')
+        .select('id, property_id, properties(address_line_1, town)')
+        .eq('created_by', user.id)
+
+      if (!transactions || transactions.length === 0) {
+        setLoading(false)
+        return
+      }
+
+      const propertyIds = transactions.map((t: any) => t.property_id).filter(Boolean)
+
+      const { data: docs } = await supabase
+        .from('documents')
+        .select('*')
+        .in('property_id', propertyIds)
+        .order('created_at', { ascending: false })
+
+      if (docs) {
+        const enriched = docs.map((d: any) => {
+          const txn = transactions.find((t: any) => t.property_id === d.property_id)
+          const prop = (txn as any)?.properties
+          return {
+            ...d,
+            property_address: prop ? `${prop.address_line_1}, ${prop.town}` : 'Unknown property',
+          }
+        })
+        setDocuments(enriched)
+      }
+      setLoading(false)
+    }
+    fetchDocuments()
+  }, [user])
+
   const filtered = documents.filter(d => {
-    const matchesSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.transaction.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === 'All' || d.category === selectedCategory
+    const cat = getDocCategory(d.document_type)
+    const matchesSearch = d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (d.property_address || '').toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory === 'All' || cat === selectedCategory
     return matchesSearch && matchesCategory
   })
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -72,7 +152,7 @@ export default function Documents() {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Document</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide hidden md:table-cell">Transaction</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide hidden md:table-cell">Property</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide hidden lg:table-cell">Category</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide hidden sm:table-cell">Status</th>
                 <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Actions</th>
@@ -87,38 +167,35 @@ export default function Documents() {
                         <FileText className="w-5 h-5 text-red-500" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{d.name}</p>
-                        <p className="text-xs text-gray-400">{d.type} · {d.size} · {d.date}</p>
+                        <p className="text-sm font-medium text-gray-900">{d.title}</p>
+                        <p className="text-xs text-gray-400">{d.mime_type || 'PDF'} · {formatFileSize(d.file_size)} · {new Date(d.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 hidden md:table-cell">
-                    <span className="text-sm text-gray-600">{d.transaction}</span>
+                    <span className="text-sm text-gray-600">{d.property_address}</span>
                   </td>
                   <td className="px-6 py-4 hidden lg:table-cell">
-                    <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">{d.category}</span>
+                    <span className="text-sm text-gray-600">{getDocCategory(d.document_type)}</span>
                   </td>
                   <td className="px-6 py-4 hidden sm:table-cell">
-                    <div className="flex items-center gap-1.5">
-                      {d.status === 'Verified' ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                      ) : (
-                        <Clock className="w-3.5 h-3.5 text-amber-500" />
-                      )}
-                      <span className={`text-xs font-medium ${
-                        d.status === 'Verified' ? 'text-green-600' : 'text-amber-600'
-                      }`}>{d.status}</span>
-                    </div>
+                    {d.requires_signature ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
+                        <Clock className="w-3 h-3" /> Awaiting Signature
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                        <CheckCircle2 className="w-3 h-3" /> Verified
+                      </span>
+                    )}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button className="p-1.5 hover:bg-gray-100 rounded-lg" title="View">
-                        <Eye className="w-4 h-4 text-gray-400" />
-                      </button>
-                      <button className="p-1.5 hover:bg-gray-100 rounded-lg" title="Download">
-                        <Download className="w-4 h-4 text-gray-400" />
-                      </button>
-                    </div>
+                  <td className="px-6 py-4 text-right">
+                    <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Eye className="w-4 h-4 text-gray-400" />
+                    </button>
+                    <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors ml-1">
+                      <Download className="w-4 h-4 text-gray-400" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -129,7 +206,7 @@ export default function Documents() {
         {filtered.length === 0 && (
           <div className="text-center py-12">
             <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No documents found</p>
+            <p className="text-sm text-gray-500">{documents.length === 0 ? 'No documents uploaded yet' : 'No documents found'}</p>
           </div>
         )}
       </div>
